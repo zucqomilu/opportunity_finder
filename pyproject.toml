@@ -1,0 +1,35 @@
+[project]
+name = "opportunity-finder"
+version = "0.1.0"
+description = "Mines Reddit for unmet-need signal and surfaces candidate utility-site ideas as org TODO entries for manual review."
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.0",
+    "praw>=7.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "unit: fast isolated unit tests",
+    "integration: tests touching real/realistic dependencies for one feature",
+    "e2e: tests exercising multiple connected features together",
+]
+# Fail if a test uses an unregistered marker (catches typos in @pytest.mark.*)
+addopts = "--strict-markers"
+
+[tool.coverage.run]
+source = ["src"]

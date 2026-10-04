@@ -1,0 +1,83 @@
+#+TITLE: Utility Site Opportunity Finder
+#+TODO: TODO IN-PROGRESS | DONE
+
+* TODO [#A] Utility Site Opportunity Finder
+  :PROPERTIES:
+  :TYPE:     project
+  :EFFORT:   0:00
+  :END:
+  :LOGBOOK:
+  CLOCK: [2026-10-02 Fri 05:00]
+  :END:
+  Finds unmet "is there a tool for X" demand on Reddit, surfaces
+  candidates as org TODO entries for manual review as potential
+  utility-site ideas. v1 scope: Reddit pain-point mining only —
+  Google Trends / Custom Search competition-checking deferred to a
+  later pass once this is proven useful.
+
+** TODO [#A] Feature: Configuration & Secrets
+   :PROPERTIES:
+   :TYPE:     feature
+   :EFFORT:   1:00
+   :END:
+   Load Reddit API credentials and mining settings (target
+   subreddits, pain-point phrases, minimum post score) from .env /
+   config file, same pattern as the Upwork bot's Configuration
+   feature.
+   - [ ] Test: load_settings() raises a clear error when required Reddit credentials are missing
+   - [ ] Test: load_settings() loads target subreddits and pain-point phrases from the config file
+   - [ ] Test: load_settings() applies sensible defaults for optional fields
+   - [ ] Integration test: load_settings() loads end-to-end from a sample .env + config file pair
+
+** TODO [#A] Feature: State Store
+   :PROPERTIES:
+   :TYPE:     feature
+   :EFFORT:   1:00
+   :END:
+   Persist which Reddit posts/comments have already been surfaced,
+   so nothing gets flagged twice across runs.
+   - [ ] Test: init_db() creates the expected tables on a fresh database file
+   - [ ] Test: mark_post_seen() then is_post_seen() returns True for that post id
+   - [ ] Test: is_post_seen() returns False for an unseen post id
+   - [ ] Integration test: state persists across process restarts using a real file-backed SQLite db
+
+** TODO [#A] Feature: Reddit Pain-Point Miner
+   :PROPERTIES:
+   :TYPE:     feature
+   :EFFORT:   3:00
+   :END:
+   Search configured subreddits for posts/comments matching
+   pain-point phrases (e.g. "is there a tool that", "I wish there
+   was an app for") — the core v1 feature.
+   - [ ] Test: search_subreddit() returns matching posts for a configured phrase
+   - [ ] Test: search_subreddit() excludes posts already marked seen in the state store
+   - [ ] Test: search_subreddit() excludes posts below the configured minimum score
+   - [ ] Test: extract_match() captures the matched phrase, post title, url, subreddit, and score
+   - [ ] Integration test: mining runs end-to-end against a real (or recorded) Reddit API response
+
+** TODO [#B] Feature: Org Sync
+   :PROPERTIES:
+   :TYPE:     feature
+   :EFFORT:   1:30
+   :END:
+   Write each newly found candidate as a new TODO entry into a
+   dedicated org file for manual review, same pattern as the Upwork
+   bot's Job Tracker feature.
+   - [ ] Test: write_candidate_entry() appends a new TODO heading with the post title
+   - [ ] Test: write_candidate_entry() includes the matched phrase, url, subreddit, and score as org properties
+   - [ ] Test: write_candidate_entry() creates the org file with a #+TODO: header line if it doesn't exist yet
+   - [ ] Test: write_candidate_entry() appends without altering entries already in the file
+   - [ ] Integration test: writes a real candidate entry into a temporary org file end-to-end and confirms valid org syntax
+
+** TODO [#B] Feature: Scheduler / Runner
+   :PROPERTIES:
+   :TYPE:     feature
+   :EFFORT:   1:00
+   :END:
+   Run the mining pipeline automatically on a schedule. Lower
+   urgency than the Upwork bot — daily is likely sufficient, not
+   minutes — confirm interval during implementation.
+   - [ ] Test: run_pipeline() calls mining, dedup, and org-sync in order
+   - [ ] Test: run_pipeline() logs an error and continues after a failed API call
+   - [ ] Test: systemd timer unit file passes a syntax/validity check
+   - [ ] Integration test: full pipeline runs end-to-end on a scheduled trigger
