@@ -42,3 +42,20 @@ def test_write_candidate_entry_includes_phrase_url_subreddit_and_score_as_proper
     assert ":URL: https://reddit.com/r/SomebodyMakeThis/comments/abc123" in content
     assert ":SUBREDDIT: SomebodyMakeThis" in content
     assert ":SCORE: 42" in content
+
+
+@pytest.mark.unit
+def test_write_candidate_entry_creates_org_file_with_todo_header_if_missing(tmp_path):
+    org_path = tmp_path / "candidates.org"
+
+    write_candidate_entry(
+        org_path,
+        title="Is there a tool that tracks my expenses?",
+        url="https://reddit.com/r/SomebodyMakeThis/comments/abc123",
+        subreddit="SomebodyMakeThis",
+        score=42,
+        phrase="is there a tool that",
+    )
+
+    content = org_path.read_text()
+    assert content.startswith("#+TODO: TODO DONE\n")

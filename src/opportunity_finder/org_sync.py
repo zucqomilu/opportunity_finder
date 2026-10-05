@@ -9,6 +9,9 @@ def write_candidate_entry(
     score: int,
     phrase: str,
 ) -> None:
+    if not org_path.exists():
+        org_path.write_text("#+TODO: TODO DONE\n")
+
     with open(org_path, "a") as org_file:
         org_file.write(
             f"* TODO {title}\n"
