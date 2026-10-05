@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from opportunity_finder.miner import search_subreddit
+from opportunity_finder.miner import Match, extract_match, search_subreddit
 from opportunity_finder.state import init_db, mark_post_seen
 
 
@@ -61,3 +61,23 @@ def test_search_subreddit_excludes_posts_below_minimum_score(tmp_path):
     )
 
     assert results == [high_score]
+
+
+@pytest.mark.unit
+def test_extract_match_captures_phrase_title_url_subreddit_and_score():
+    submission = SimpleNamespace(
+        title="Is there a tool that tracks my expenses?",
+        url="https://reddit.com/r/SomebodyMakeThis/comments/abc123",
+        score=42,
+        subreddit=SimpleNamespace(display_name="SomebodyMakeThis"),
+    )
+
+    match = extract_match(submission, "is there a tool that")
+
+    assert match == Match(
+        phrase="is there a tool that",
+        title="Is there a tool that tracks my expenses?",
+        url="https://reddit.com/r/SomebodyMakeThis/comments/abc123",
+        subreddit="SomebodyMakeThis",
+        score=42,
+    )
