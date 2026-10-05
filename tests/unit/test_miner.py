@@ -41,3 +41,23 @@ def test_search_subreddit_excludes_posts_already_marked_seen(tmp_path):
     )
 
     assert results == [unseen]
+
+
+@pytest.mark.unit
+def test_search_subreddit_excludes_posts_below_minimum_score(tmp_path):
+    db_path = tmp_path / "state.db"
+    init_db(db_path)
+
+    low_score = _submission(
+        "1", "Is there a tool that tracks my expenses?", score=2
+    )
+    high_score = _submission(
+        "2", "Is there a tool that tracks my sleep?", score=20
+    )
+    subreddit = SimpleNamespace(new=lambda limit: [low_score, high_score])
+
+    results = search_subreddit(
+        subreddit, phrases=["is there a tool that"], db_path=db_path, min_score=10
+    )
+
+    assert results == [high_score]
