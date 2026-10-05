@@ -28,3 +28,11 @@ def test_mark_post_seen_then_is_post_seen_returns_true(tmp_path):
     mark_post_seen(db_path, "abc123")
 
     assert is_post_seen(db_path, "abc123") is True
+
+
+@pytest.mark.unit
+def test_is_post_seen_returns_false_for_an_unseen_post_id(tmp_path):
+    db_path = tmp_path / "state.db"
+    init_db(db_path)
+
+    assert is_post_seen(db_path, "never-marked") is False
