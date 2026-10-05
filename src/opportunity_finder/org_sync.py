@@ -10,4 +10,12 @@ def write_candidate_entry(
     phrase: str,
 ) -> None:
     with open(org_path, "a") as org_file:
-        org_file.write(f"* TODO {title}\n")
+        org_file.write(
+            f"* TODO {title}\n"
+            "  :PROPERTIES:\n"
+            f"  :PHRASE: {phrase}\n"
+            f"  :URL: {url}\n"
+            f"  :SUBREDDIT: {subreddit}\n"
+            f"  :SCORE: {score}\n"
+            "  :END:\n"
+        )

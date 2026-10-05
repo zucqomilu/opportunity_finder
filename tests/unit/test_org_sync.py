@@ -19,3 +19,26 @@ def test_write_candidate_entry_appends_new_todo_heading_with_post_title(tmp_path
 
     content = org_path.read_text()
     assert "* TODO Is there a tool that tracks my expenses?" in content
+
+
+@pytest.mark.unit
+def test_write_candidate_entry_includes_phrase_url_subreddit_and_score_as_properties(
+    tmp_path,
+):
+    org_path = tmp_path / "candidates.org"
+    org_path.write_text("#+TODO: TODO DONE\n")
+
+    write_candidate_entry(
+        org_path,
+        title="Is there a tool that tracks my expenses?",
+        url="https://reddit.com/r/SomebodyMakeThis/comments/abc123",
+        subreddit="SomebodyMakeThis",
+        score=42,
+        phrase="is there a tool that",
+    )
+
+    content = org_path.read_text()
+    assert ":PHRASE: is there a tool that" in content
+    assert ":URL: https://reddit.com/r/SomebodyMakeThis/comments/abc123" in content
+    assert ":SUBREDDIT: SomebodyMakeThis" in content
+    assert ":SCORE: 42" in content
