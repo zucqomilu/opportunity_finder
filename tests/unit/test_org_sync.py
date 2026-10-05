@@ -59,3 +59,32 @@ def test_write_candidate_entry_creates_org_file_with_todo_header_if_missing(tmp_
 
     content = org_path.read_text()
     assert content.startswith("#+TODO: TODO DONE\n")
+
+
+@pytest.mark.unit
+def test_write_candidate_entry_appends_without_altering_existing_entries(tmp_path):
+    org_path = tmp_path / "candidates.org"
+    existing_content = (
+        "#+TODO: TODO DONE\n"
+        "* TODO Does anyone know a website that tracks garden chores?\n"
+        "  :PROPERTIES:\n"
+        "  :PHRASE: does anyone know a website that\n"
+        "  :URL: https://reddit.com/r/SideProject/comments/xyz789\n"
+        "  :SUBREDDIT: SideProject\n"
+        "  :SCORE: 7\n"
+        "  :END:\n"
+    )
+    org_path.write_text(existing_content)
+
+    write_candidate_entry(
+        org_path,
+        title="Is there a tool that tracks my expenses?",
+        url="https://reddit.com/r/SomebodyMakeThis/comments/abc123",
+        subreddit="SomebodyMakeThis",
+        score=42,
+        phrase="is there a tool that",
+    )
+
+    content = org_path.read_text()
+    assert content.startswith(existing_content)
+    assert "* TODO Is there a tool that tracks my expenses?" in content
